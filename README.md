@@ -65,10 +65,11 @@ Logik & Architektur:
     ros2_ws/src/jackal/jackal_navigation/launch/master_bringup.launch.py
 
 Der Ordner ```phase1/ros2_ws``` enthält aus Transparenzgründen alle im Laufe der Arbeit entstandenen Dateien, auch solche die nicht für das Ergebnis der Arbeit verwendet wurden.
-Der Ordner ```phase2/ros2_ws``` enthält nur Dateien die für das Ergebnis der Arbeit wirklich genutzt wurden.
+Der Ordner ```phase2/ros2_ws``` enthält nur Dateien die für das Ergebnis der Arbeit wirklich genutzt wurden. Zudem enthalten Dateien in diesem Ordner die finalen Kommentare
 Beide Ordner enthalten Dateien die mit Hilfe von Gemini überarbeitet und kommentiert wurden.
 
 Anmerkung: Beim Bearbeiten lag der ```ros2_ws``` Ordner direkt im Home-Verzeichnis. Sollte es zu Pfadproblemen kommen aufgrund des ```phase1``` bzw ```phase2``` Ordners verschieben Sie den ros2_ws Ordner direkt in Ihr Homeverzeichnis. Die beiden Ordner (```phase1```, ```phase2```) wurden nur zur Übersicht des Github Repositories erstellt.
+
 
 # Anwendung starten
 
