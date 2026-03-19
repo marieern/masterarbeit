@@ -1,0 +1,308 @@
+map_server:
+  ros__parameters:
+    use_sim_time: True
+    yaml_filename: "/home/marieernst/ros2_ws/jackal/jackal_navigation/maps/lager_karte_jackal.yaml" #
+
+amcl:
+  ros__parameters:
+    use_sim_time: True
+    # WICHTIG: false, da der EKF die TF map->odom macht
+    tf_broadcast: false 
+    
+    # Standard Parameter
+    base_frame_id: "base_link"
+    global_frame_id: "map"
+    odom_frame_id: "odom"
+    scan_topic: scan
+    
+    # Tuning für schnelles Einrasten
+    update_min_d: 0.1 
+    update_min_a: 0.1
+    min_particles: 500
+    max_particles: 4000
+    
+    # Toleranz gegen Zeit-Probleme
+    transform_tolerance: 1.0
+    
+    # Helfen beim Wiederfinden ("Global Localization" Modus verhindern)
+    save_pose_rate: 0.5
+
+    # HIER DIE GLEICHEN START-KOORDINATEN WIE IN GAZEBO:
+    initial_pose: {x: 0.0, y: 0.0, z: 0.0, yaw: 0.0} 
+
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: True
+    global_frame: map
+    robot_base_frame: base_link
+    odom_frame: odom
+    transform_tolerance: 0.5
+    # Wir setzen sicherheitshalber alle drei Pfad-Varianten auf deine Datei
+    default_bt_xml_filename: "/home/marieernst/ros2_ws/src/jackal/jackal_navigation/behavior_trees/jackal_nav_recovery.xml"
+    default_nav_to_pose_bt_xml: "/home/marieernst/ros2_ws/src/jackal/jackal_navigation/behavior_trees/jackal_nav_recovery.xml"
+    #default_nav_through_poses_bt_xml: "/home/marieernst/ros2_ws/src/jackal/jackal_navigation/behavior_trees/jackal_nav_recovery.xml"
+    
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_smooth_path_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_drive_on_heading_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_globally_updated_goal_condition_bt_node
+      - nav2_is_path_valid_condition_bt_node
+      - nav2_initial_pose_received_condition_bt_node
+      - nav2_reinitialize_global_localization_service_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_speed_controller_bt_node
+      - nav2_truncate_path_action_bt_node
+      - nav2_truncate_path_local_action_bt_node
+      - nav2_goal_updater_node_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+      - nav2_transform_available_condition_bt_node
+      - nav2_time_expired_condition_bt_node
+      - nav2_path_expiring_timer_condition
+      - nav2_distance_traveled_condition_bt_node
+      - nav2_single_trigger_bt_node
+      - nav2_is_battery_low_condition_bt_node
+      - nav2_navigate_through_poses_action_bt_node
+      - nav2_navigate_to_pose_action_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+
+controller_server:
+  ros__parameters:
+    use_sim_time: True
+    # 1. Frequenz: 10 Hz (Period = 0.1s)
+    controller_frequency: 5.0 
+    
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["general_goal_checker"] 
+    controller_plugins: ["FollowPath"]
+
+    general_goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.2
+      stateful: True
+
+    FollowPath:
+      plugin: "nav2_mppi_controller::MPPIController"
+      
+      # === WICHTIGE FIXES ===
+      # Da Frequenz 10Hz ist (alle 0.1s), muss model_dt auch 0.1 sein!
+      model_dt: 0.2
+      
+      # Wir brauchen nur noch 30 Schritte für 3 Sekunden Vorschau (30 * 0.1 = 3.0s)
+      # Vorher waren es 56. Das spart fast 50% Rechenleistung!
+      time_steps: 18
+      
+      # Weniger Pfade simulieren (reicht für Jackal völlig)
+      batch_size: 600 
+      
+      vx_std: 0.2
+      vy_std: 0.0
+      wz_std: 0.4
+      vx_max: 0.3
+      vx_min: 0.0
+      wz_max: 0.6
+      is_holonomic_drive: false 
+      
+      transform_tolerance: 0.5 
+
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic"]
+
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 3
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        threshold_to_consider: 0.5
+        max_angle_to_furthest: 0.785
+        mode: 0
+
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+        trajectory_point_step: 2
+        
+planner_server:
+  ros__parameters:
+    use_sim_time: True
+    expected_planner_frequency: 20.0
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_theta_star_planner/ThetaStarPlanner"
+      how_many_corners: 8
+      allow_unknown: true
+      w_euc_cost: 1.0
+      w_traversal_cost: 2.0
+      
+      # === NEU: Glättung aktivieren ===
+      use_final_approach_orientation: true
+      smoother_max_iterations: 1000
+      smooth_path: true # Versucht, die Ecken rund zu machen
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 2.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      use_sim_time: True
+      rolling_window: true
+      width: 10
+      height: 10
+      resolution: 0.05
+      transform_tolerance: 0.5
+      footprint: "[ [0.30, 0.26], [0.30, -0.26], [-0.30, -0.26], [-0.30, 0.26] ]"
+      
+      # KORREKTUR: Nur obstacle und inflation (KEIN static_layer!)
+      plugins: ["obstacle_layer", "inflation_layer"]
+      
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan scan_rear_filtered
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          #min_obstacle_height: -0.10
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 5.0
+          obstacle_max_range: 2.5
+          inf_is_valid: true
+        
+        scan_rear_filtered:
+          topic: /scan_rear_filtered
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          raytrace_max_range: 5.0
+          obstacle_max_range: 2.5
+          inf_is_valid: true
+          
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 2.5
+        inflation_radius: 0.7
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: True
+      resolution: 0.05
+      transform_tolerance: 0.5
+      footprint: "[ [0.30, 0.26], [0.30, -0.26], [-0.30, -0.26], [-0.30, 0.26] ]"
+      
+      # Hier MUSS der static_layer rein
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan scan_rear_filtered
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          #min_obstacle_height: -0.10
+          clearing: True #
+          marking: True
+          data_type: "LaserScan"
+          # Wenn ein Strahl nichts trifft, wird bis 5.0m alles als "Frei" markiert.
+          # Das hilft, Geisterwände schneller zu löschen.
+          raytrace_max_range: 6.0 
+          obstacle_max_range: 2.5
+          inf_is_valid: true
+        
+        scan_rear_filtered:
+          topic: /scan_rear_filtered
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          raytrace_max_range: 5.0
+          obstacle_max_range: 2.5
+          inf_is_valid: true
+          
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 2.5
+        inflation_radius: 0.7
+
+behavior_server:
+  ros__parameters:
+    use_sim_time: True
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin"    # Geändert von :: auf /
+    backup:
+      plugin: "nav2_behaviors/BackUp"  # Geändert von :: auf /
+    wait:
+      plugin: "nav2_behaviors/Wait"    # Geändert von :: auf /
+    global_frame: map
+    robot_base_frame: base_link
+    transform_tolerance: 0.5
+
+lifecycle_manager_navigation:
+  ros__parameters:
+    use_sim_time: True
+    autostart: true
+    node_names: ['map_server', 'amcl', 'planner_server', 'controller_server', 'behavior_server', 'bt_navigator']

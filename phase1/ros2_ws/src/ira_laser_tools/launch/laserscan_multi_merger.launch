@@ -1,0 +1,12 @@
+<launch>
+    <node pkg="ira_laser_tools" name="laserscan_multi_merger" exec="laserscan_multi_merger" output="screen">
+        <param name="destination_frame" value="base_link"/>
+        <param name="scan_destination_topic" value="/scan_merged"/> <param name="laserscan_topics" value="/scan /scan_rear"/>
+        <param name="angle_min" value="-3.14"/>
+        <param name="angle_max" value="3.14"/>
+        <param name="angle_increment" value="0.017"/>
+        <param name="scan_time" value="0.033"/> 
+        <param name="range_min" value="0.45"/>
+        <param name="range_max" value="50.0"/>
+    </node>
+</launch>
