@@ -1,0 +1,17 @@
+digraph G {
+"base_footprint" -> "front_right_wheel_link"[label=" Broadcaster: default_authority\nAverage rate: 25.202\nBuffer length: 4.96\nMost recent transform: 11475.933\nOldest transform: 11470.973\n"];
+"base_footprint" -> "base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "chassis_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"front_mount" -> "front_laser"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"mid_mount" -> "front_mount"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"front_laser" -> "front_laser_obstacle_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"chassis_link" -> "mid_mount"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"mid_mount" -> "gps_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_footprint" -> "front_left_wheel_link"[label=" Broadcaster: default_authority\nAverage rate: 25.202\nBuffer length: 4.96\nMost recent transform: 11475.933\nOldest transform: 11470.973\n"];
+"base_footprint" -> "rear_right_wheel_link"[label=" Broadcaster: default_authority\nAverage rate: 25.203\nBuffer length: 4.92\nMost recent transform: 11475.893\nOldest transform: 11470.973\n"];
+"base_footprint" -> "rear_left_wheel_link"[label=" Broadcaster: default_authority\nAverage rate: 25.203\nBuffer length: 4.92\nMost recent transform: 11475.893\nOldest transform: 11470.973\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1769176356.5506897"[ shape=plaintext ] ;
+}->"base_footprint";
+}

@@ -1,0 +1,59 @@
+Fahrt	Status	Zeit (in s)	Distanz (in m)	Geschwindigkeit (m/s)	Recoveries
+Indoor_01	reached	28	9.96	0.355714285714286	0
+Indoor_02	reached	30	10.18	0.339333333333333	0
+Indoor_03	aborted	39	9.97	0.255641025641026	0
+Indoor_04	reached	29	10.05	0.346551724137931	0
+Indoor_05	reached	29	9.98	0.344137931034483	0
+Indoor_06	reached	30	10.17	0.339	0
+Indoor_07	reached	30	10.3	0.343333333333333	0
+Indoor_08	reached	29	10.15	0.35	0
+Indoor_09	reached	30	10.27	0.342333333333333	0
+Indoor_10	reached	30	10.22	0.340666666666667	0
+Outdoor_01	reached	17	5.42	0.318823529411765	0
+Outdoor_02	reached	22	5.25	0.238636363636364	0
+Outdoor_03	reached	23	5.08	0.220869565217391	0
+Outdoor_04	reached	20	4.8	0.24	0
+Outdoor_05	reached	19	4.61	0.242631578947368	0
+Outdoor_06	reached	18	4.36	0.242222222222222	0
+Outdoor_07	reached	19	4.21	0.221578947368421	0
+Outdoor_08	reached	18	4.02	0.223333333333333	0
+Outdoor_09	reached	20	4.6	0.23	0
+Outdoor_10	reached	19	4.39	0.231052631578947	0
+Indoor_Outdoor_01	reached	49	15.14	0.308979591836735	0
+Indoor_Outdoor_02	reached	45	15.98	0.355111111111111	0
+Indoor_Outdoor_03	reached	45	15.16	0.336888888888889	0
+Indoor_Outdoor_04	reached	54	14.94	0.276666666666667	0
+Indoor_Outdoor_05	reached	55	15	0.272727272727273	0
+Indoor_Outdoor_06	reached	58	14.99	0.258448275862069	0
+Indoor_Outdoor_07	reached	45	15.06	0.334666666666667	0
+Indoor_Outdoor_08	reached	53	14.89	0.280943396226415	0
+Indoor_Outdoor_09	reached	54	14.97	0.277222222222222	0
+Indoor_Outdoor_10	reached	56	15.15	0.270535714285714	0
+Outdoor_Indoor_01	aborted	30	9.41	0.313666666666667	19
+Outdoor_Indoor_02	reached	16	9.31	0.581875	0
+Outdoor_Indoor_03	reached	16	9.44	0.59	0
+Outdoor_Indoor_04	reached	16	9.33	0.583125	0
+Outdoor_Indoor_05	reached	16	9.5	0.59375	0
+Outdoor_Indoor_06	reached	61	10.13	0.166065573770492	5
+Outdoor_Indoor_07	reached	16	10.02	0.62625	0
+Outdoor_Indoor_08	reached	16	10.04	0.6275	0
+Outdoor_Indoor_09	reached	15	10.06	0.670666666666667	0
+Outdoor_Indoor_10	reached	16	10.12	0.6325	0
+Hindernis_01	reached	34	5.9	0.173529411764706	4
+Hindernis_02	reached	17	5.93	0.348823529411765	0
+Hindernis_03	reached	18	6.24	0.346666666666667	0
+Hindernis_04	reached	21	6.25	0.297619047619048	0
+Hindernis_05	reached	18	6.01	0.333888888888889	0
+Hindernis_06	reached	18	6.05	0.336111111111111	0
+Hindernis_07	reached	18	6.2	0.344444444444444	0
+Hindernis_08	reached	17	5.61	0.33	0
+Hindernis_09	reached	20	5.08	0.254	0
+Hindernis_10	reached	18	6.07	0.337222222222222	0
+
+
+wieso mehr fahrten nicht zu unbedingt besseren ergebnissen führen würden
+
+Dashboard als Zusatz, Mehrwert? sind Forschungsfrage
+Dashboard weglassen
+allgemein: immer auf Lesefluss achten, wann fragt sich der Leser was, ist die Forschungsfrage vollumfänglich beantwortet?
+Begründung wieso 10 Fahrten ausreichend sind -> bei mehr Fahrten hätte sich das VErhalten nicht wirklich verändert
