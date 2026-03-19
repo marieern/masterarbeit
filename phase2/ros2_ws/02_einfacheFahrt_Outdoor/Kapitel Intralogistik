@@ -1,0 +1,106 @@
+\chapter{Industrieller Transfer: Integration in digitale Logistikprozesse}
+\label{chap:transfer}
+
+Dieses Kapitel skizziert ein konzeptionelles Framework, um das entwickelte hybride Navigationssystem des Jackal UGV in eine vernetzte digitale Logistikumgebung zu integrieren. Ziel ist es, die prozessrelevanten Daten, die während der autonomen Fahrt auf dem \ac{ROS2}-Stack anfallen, für übergeordnete Managementsysteme (z. B. \ac{WMS}) nutzbar zu machen.
+
+%\section{Motivation und konzeptioneller Rahmen}
+% HIER SCHREIBEN:
+% - Einleitung: Warum reicht es nicht, dass der Roboter nur fährt?
+% - Begriff "Industrie 4.0" / "Digitaler Zwilling" kurz anreißen.
+% - Das Ziel: Transparenz über Materialfluss und Maschinenzustand in Echtzeit.
+% - Die Rolle deiner Arbeit: Dein robuster Gatekeeper liefert verlässliche Daten (z.B. "Ich bin sicher Drinnen"), was die Basis für Automatisierung ist.
+
+\section{Datenakquisition am Edge-Device (Jackal UGV)}
+
+Im Kontext einer modernen Industrie-4.0-Architektur fungiert das Jackal UGV als \textit{Edge-Device} innerhalb des \ac{IoT}. Während die rechenintensiven Prozesse der Lokalisierung und Pfadplanung lokal auf der On-Board-Hardware des Roboters (Edge) ausgeführt werden, liefert das System kontinuierlich vorverarbeitete Datenströme an eine zentrale Management-Ebene. Dieser Ansatz reduziert die notwendige Bandbreite zur Cloud-Kommunikation massiv, da nicht jeder rohe Sensorwert, sondern lediglich prozessrelevante Zustandsinformationen, übertragen werden.
+
+Die Grundlage für diese Datenakquisition bildet das \ac{ROS2}-Messaging-System. Für die Integration in ein digitales Logistikkonzept sind dabei insbesondere die in Tabelle \ref{tab:ros_topics_logistics} aufgeführten Topics von zentraler Bedeutung.
+
+\begin{table}[h]
+\centering
+\caption{Relevante ROS-2-Topics für die logistische Prozessintegration.}
+\label{tab:ros_topics_logistics}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Datenkategorie} & \textbf{ROS-Topic} & \textbf{Logistischer Nutzen} \\ \midrule
+Echtzeit-Position & \texttt{/odometry/global} & Live-Tracking im Digitalen Zwilling \\
+Missionsstatus & \texttt{/navigate\_to\_pose/\_action/status} & Überwachung der Auftragsfortschritte \\
+Systemzustand & \texttt{/diagnostics} \& \texttt{/battery\_state} & Prädiktive Wartung (Predictive Maintenance) \\
+Umgebungsdaten & \texttt{/global\_costmap/costmap} & Erkennung dynamischer Engpässe im Lager \\
+Zustandswechsel & \texttt{/gatekeeper/status} & Automatisierte Zonenkontrolle (z. B. Tore) \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ein wissenschaftlicher und praktischer Mehrwert ergibt sich hierbei durch das in dieser Arbeit entwickelte \textit{Gatekeeper-Modul}. In herkömmlichen Systemen müssten übergeordnete Logistik-Applikationen komplexe und oft fehlerbehaftete \ac{GNSS}-Koordinaten eigenständig interpretieren, um den Aufenthaltsort eines Roboters zu bestimmen. Der Gatekeeper hingegen liefert durch die logische Verknüpfung von Positionsdaten und Umgebungswissen einen binären oder kategorischen Status (\texttt{Indoor} vs. \texttt{Outdoor}). 
+
+
+
+Diese Form der Datenabstraktion ermöglicht es einem \ac{WMS}, hocheffiziente ereignisgesteuerte Workflows (\textit{Event-Driven Logistics}) zu triggern. Anstatt permanent Koordinaten zu vergleichen, reagiert das System auf das Event des Zonenwechsels. So kann beispielsweise beim Verlassen des Gebäudes automatisch eine Logistik-Checkliste für den Außenbereich aktiviert oder beim Eintritt eine automatisierte Torsteuerung ausgelöst werden. Das Edge-Device übernimmt somit die Rolle eines intelligenten Filters, der die physische Sensorwelt der Robotik mit der logischen Prozesswelt des Managements verknüpft.
+
+\section{Systemarchitektur und Datenfluss}
+\label{sec:transfer_architektur}
+
+Um die lokale Sensorik des Jackal UGV mit der globalen Logistik-IT zu verknüpfen, wird eine dreistufige Schichtenarchitektur (Layered Architecture) vorgeschlagen. Diese Struktur gewährleistet, dass hochfrequente Steuerungsdaten lokal verarbeitet werden, während aggregierte Prozessinformationen für das Management bereitgestellt werden. Der Datenfluss folgt dabei dem Prinzip der vertikalen Integration von der Feldebene bis zur Unternehmensebene.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{logistics_data_flow.png}
+    \caption{Konzeptionelle Architektur des Datenflusses vom ROS-basierten Edge-Device (Jackal) hin zur übergeordneten Management-Ebene.}
+    \label{fig:data_flow_architecture}
+\end{figure}
+
+\subsection{Edge Layer: Lokale Prozessierung}
+Die unterste Schicht, der Edge Layer, umfasst die physische Hardware des Roboters sowie den gesamten \ac{ROS2}-Stack. Hier findet die rechenintensive Ausführung der \ac{EKF}-Fusion, der \ac{Nav2}-Pfadplanung und der Gatekeeper-Logik statt. Die Daten liegen in dieser Schicht mit einer hohen Frequenz vor (z. B. \ac{IMU} und \ac{EKF}-Posen mit bis zu 30 Hz), um die notwendige Reaktivität für die Navigation zu garantieren. Da eine direkte Übertragung dieser Datenmengen in eine Cloud-Infrastruktur die Netzwerkbandbreite überlasten und für logistische Fragestellungen irrelevanten „Rauschen“ enthalten würde, erfolgt auf dieser Ebene eine erste Vorfilterung.
+
+\subsection{Connectivity Layer: Protokoll-Bridge und Datenreduktion}
+Da moderne Lagerverwaltungssysteme (\ac{WMS}) oder \ac{ERP}-Systeme keine nativen \ac{ROS2}-Schnittstellen unterstützen, fungiert der Connectivity Layer als entscheidendes Bindeglied. Eine \ac{ROS}-\ac{MQTT}-Bridge übersetzt die internen \ac{ROS}-Nachrichten in das im \ac{IoT}-Bereich weit verbreitete \ac{MQTT} Protokoll. 
+
+Während der lokale Planer mit 30 Hz operiert, wird die globale Pose für das Flottenmanagement auf eine Frequenz von 1 Hz gedrosselt. In dieser Schicht findet somit eine Datenreduktion statt. Diese „Throttling“-Strategie stellt sicher, dass das System skalierbar bleibt, auch wenn eine Vielzahl von Robotern gleichzeitig Daten sendet. Zudem werden hier asynchrone Events priorisiert übertragen. Meldet der Gatekeeper beispielsweise einen Zonenwechsel, wird diese Information unmittelbar und unabhängig von der zyklischen Posenaktualisierung als Alarm- oder Status-Event publiziert.
+
+
+
+\subsection{Management Layer: Logistische Integration}
+Der Management Layer bildet die letzte Ebene des Datenflusses. Hier werden die via \ac{MQTT} empfangenen Daten in einer Zeitreihendatenbank (z. B. InfluxDB) gespeichert und für Business-Intelligence-Anwendungen aufbereitet. Auf dieser Ebene erfolgt die Integration in das \ac{WMS}, welches die Roboterpositionen nutzt, um den „Digitalen Zwilling“ des Lagers zu aktualisieren. 
+
+Die Management-Ebene nutzt die Daten des Jackal, um übergeordnete Logistik-\ac{KPI} zu berechnen, wie beispielsweise die durchschnittliche Durchlaufzeit zwischen Außen- und Innenbereich oder die Auslastung der Roboterflotte. Durch die Entkopplung der Schichten mittels der Connectivity-Bridge wird sichergestellt, dass Änderungen an der Roboter-Software keine unmittelbaren Anpassungen der Unternehmens-IT erfordern. Dies erhöht sowhol die Wartbarkeit als auch die Interoperabilität des Gesamtsystems.
+
+
+
+\section{Mehrwertdienste und Visualisierung im Leitstand}
+
+Die im Connectivity Layer aggregierten und vorverarbeiteten Daten finden ihre finale Anwendung in einem zentralen Logistik-Leitstand. Für den Logistikleiter transformieren diese Informationen den physischen Roboterbetrieb in eine transparente, steuerbare Prozesslandschaft. Die Nutzbarmachung dieser Daten erfolgt primär über drei wesentliche Mehrwertdienste.
+
+\subsection{Digitaler Zwilling und Echtzeit-Tracking}
+Der erste wesentliche Anwendungsfall ist die Realisierung eines Digitalen Zwillings (\textit{Digital Twin}). Durch die kontinuierliche Übertragung der globalen Pose (\texttt{/tf}) kann die exakte Position des Jackal UGV in Echtzeit auf einer digitalen Karte des Werksgeländes visualisiert werden. Dies ermöglicht ein lückenloses \textit{Track \& Trace} von Warenströmen. Im Gegensatz zu passiven Tracking-Systemen (wie z. B. stationären RFID-Gates) liefert das UGV aktive Rückmeldungen über Transportverzögerungen oder Blockaden in den Fahrwegen. Der Leitstand erhält somit eine objektive Entscheidungsgrundlage, um bei Engpässen proaktiv einzugreifen oder Lieferzeitprognosen dynamisch anzupassen.
+
+\subsection{Ereignisgesteuerte Infrastruktur-Automatisierung}
+Ein besonders innovativer Mehrwert ergibt sich aus der Verknüpfung der Gatekeeper-Logik mit der Gebäudeinfrastruktur. Durch das \textit{Event-driven Design} kann der Statuswechsel des Gatekeepers (\texttt{Indoor} vs. \texttt{Outdoor}) genutzt werden, um physische Aktionen in der Umgebung auszulösen. Ein praxisnahes Beispiel ist die automatisierte Torsteuerung. Sobald der Roboter über den \texttt{SetPose}-Service den Eintritt in die Transit-Zone am Hallentor validiert, sendet das Management-System einen Öffnungsbefehl an das entsprechende Tor. Dies eliminiert Wartezeiten, die bei manueller Steuerung oder rein zeitbasierten Intervallen entstehen würden, und erhöht gleichzeitig die Sicherheit, da das Tor nur bei physischer Präsenz eines autorisierten Roboters geöffnet wird.
+
+\subsection{Predictive Maintenance und Flottenzustand}
+Über die rein navigationsbezogenen Daten hinaus ermöglicht die Akquisition von Telemetriedaten wie der Batteriespannung (\texttt{/battery\_state}) und den Motorströmen (\texttt{/diagnostics}) ein umfassendes Zustandsmonitoring. Anstatt Wartungsintervalle starr nach Kalendertagen zu planen, erlaubt dieser Ansatz eine vorausschauende Instandhaltung (\textit{Predictive Maintenance}). Sinkt die Kapazität der Batterie unter einen kritischen Schwellenwert oder steigen die Ströme in den Antriebsmotoren untypisch an, was auf mechanischen Verschleiß oder Radschlupf hindeuten kann, generiert das System automatisch einen Wartungsauftrag. Dies stellt sicher, dass der Jackal UGV bevorzugt in produktionsarmen Zeiten geladen oder gewartet wird, wodurch die Gesamtanlageneffektivität (\textit{Overall Equipment Effectiveness, OEE}) der Flotte maximiert wird.
+
+Die grafische Aufbereitung dieser Dienste in einem intuitiven Dashboard stellt sicher, dass komplexe robotische Zustände in leicht verständliche Handlungsempfehlungen für das Personal übersetzt werden. Wie in der Abbildung ersichtlich, werden hierbei technische Metriken (Geschwindigkeit, Modus) mit logistischen Kennzahlen (Auftragsstatus) kombiniert, um eine ganzheitliche Überwachung der hybriden Transportprozesse zu gewährleisten.
+
+% --- EINFÜGEN DER ZWEITEN ABBILDUNG ---
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.9\textwidth]{bilder/logistics_dashboard_ui.png} % Pfad anpassen!
+    \caption{Entwurf eines digitalen Logistik-Leitstands. Das Dashboard visualisiert den Echtzeit-Status, die Position und den aktiven Navigationsmodus (Indoor/Outdoor) der Roboterflotte.}
+    \label{fig:logistics_dashboard}
+\end{figure}
+
+\section{Potenziale und Ausblick auf Flottenstandards}
+
+Die in den vorangegangenen Abschnitten dargelegte Konzeption verdeutlicht, dass der wahre Wert eines autonomen Systems in der industriellen Logistik erst durch die Transformation technischer Rohdaten in ökonomischen Mehrwert entsteht. Das entwickelte hybride Navigationssystem bildet hierfür das technologische Fundament: Durch die zuverlässige Lokalisierung und die eindeutige Zonenbestimmung des Gatekeepers wird die Messunsicherheit der Robotik in eine verlässliche Entscheidungsgrundlage für die Lagerverwaltung übersetzt. Dies ermöglicht nicht nur eine Reduktion manueller Eingriffe, sondern steigert durch die nahtlose Integration von Außen- und Innenbereichen die Kontinuität des Materialflusses.
+
+Für die Zukunft liegt das größte Potenzial in der Skalierung dieses Ansatzes auf heterogene Roboterflotten. In realen Warehouse-Szenarien agieren selten identische Einheiten; stattdessen treffen spezialisierte Gabelstapler-AGVs, kleine Transportroboter wie das Jackal UGV und autonome Schlepper aufeinander. Um eine effiziente Koordination dieser Systeme ohne einen herstellerspezifischen \textit{Vendor Lock-in} zu gewährleisten, ist die Implementierung standardisierter Schnittstellen wie der \textbf{VDA 5050} unumgänglich.
+
+
+
+Die VDA 5050 fungiert dabei als universelle Sprache zwischen einer zentralen Leitsteuerung und den mobilen Robotern. Ein künftiger Ausbaustufe des hier vorgestellten Systems würde einen dedizierten \textit{VDA 5050 Adapter} beinhalten, welcher die ROS-internen Zustände – insbesondere die durch den Gatekeeper validierten Posen und Umgebungswechsel – in das standardisierte JSON-Protokoll der Schnittstelle übersetzt. Dies würde es ermöglichen, den Jackal unmittelbar in übergeordnete Verkehrsmanagement-Systeme zu integrieren, die Vorfahrtsregeln an Engstellen wie dem Hallentor global koordinieren.
+
+Zusammenfassend lässt sich festhalten, dass die hybride Navigation nicht nur ein algorithmisches Problem löst, sondern als Enabler für eine durchgängig automatisierte Lieferkette fungiert. Die hier präsentierte Architektur aus robuster lokaler Steuerung und konzeptioneller Cloud-Anbindung bietet die notwendige Flexibilität, um den steigenden Anforderungen an Dynamik und Vernetzung in der modernen Intralogistik gerecht zu werden.
+
+
+

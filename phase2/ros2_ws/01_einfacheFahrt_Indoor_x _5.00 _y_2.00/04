@@ -1,0 +1,101 @@
+=== ERGEBNISSE FÜR DEIN KAPITEL 01 ===
+Fahrzeit (s): 88.5
+Gefahrene Distanz (m): 16.3
+Durchschnittsgeschwindigkeit (m/s): 0.156
+Max. Geschwindigkeit (m/s): 0.44
+Spurabweichung RMSE (m): 0.2483
+Max. Spurabweichung (m): 0.842
+Min. Abstand zu Hindernissen (m): 1.19
+Ausgelöste Recoveries: 3
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 02===
+Fahrzeit (s): 56.0
+Gefahrene Distanz (m): 11.9
+Durchschnittsgeschwindigkeit (m/s): 0.176
+Max. Geschwindigkeit (m/s): 0.44
+Spurabweichung RMSE (m): 0.1326
+Max. Spurabweichung (m): 0.418
+Min. Abstand zu Hindernissen (m): 1.36
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 03===
+Fahrzeit (s): 50.5
+Gefahrene Distanz (m): 10.18
+Durchschnittsgeschwindigkeit (m/s): 0.197
+Max. Geschwindigkeit (m/s): 0.43
+Spurabweichung RMSE (m): 0.0807
+Max. Spurabweichung (m): 0.166
+Min. Abstand zu Hindernissen (m): 1.47
+Ausgelöste Recoveries: 1
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 04===
+Fahrzeit (s): 29.5
+Gefahrene Distanz (m): 9.84
+Durchschnittsgeschwindigkeit (m/s): 0.331
+Max. Geschwindigkeit (m/s): 0.44
+Spurabweichung RMSE (m): 0.0601
+Max. Spurabweichung (m): 0.198
+Min. Abstand zu Hindernissen (m): 1.4
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 05 ===
+Fahrzeit (s): 29.5
+Gefahrene Distanz (m): 9.86
+Durchschnittsgeschwindigkeit (m/s): 0.335
+Max. Geschwindigkeit (m/s): 0.44
+Spurabweichung RMSE (m): 0.2226
+Max. Spurabweichung (m): 0.725
+Min. Abstand zu Hindernissen (m): 1.44
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 06===
+Fahrzeit (s): 29.5
+Gefahrene Distanz (m): 9.94
+Durchschnittsgeschwindigkeit (m/s): 0.335
+Max. Geschwindigkeit (m/s): 0.43
+Spurabweichung RMSE (m): 0.0912
+Max. Spurabweichung (m): 0.123
+Min. Abstand zu Hindernissen (m): 1.55
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 07===
+Fahrzeit (s): 41.5
+Gefahrene Distanz (m): 10.02
+Durchschnittsgeschwindigkeit (m/s): 0.24
+Max. Geschwindigkeit (m/s): 0.43
+Spurabweichung RMSE (m): 0.167
+Max. Spurabweichung (m): 0.661
+Min. Abstand zu Hindernissen (m): 1.48
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 08===
+Fahrzeit (s): 29.5
+Gefahrene Distanz (m): 9.97
+Durchschnittsgeschwindigkeit (m/s): 0.34
+Max. Geschwindigkeit (m/s): 0.42
+Spurabweichung RMSE (m): 0.0364
+Max. Spurabweichung (m): 0.114
+Min. Abstand zu Hindernissen (m): 1.4
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 09===
+Fahrzeit (s): 29.5
+Gefahrene Distanz (m): 10.0
+Durchschnittsgeschwindigkeit (m/s): 0.337
+Max. Geschwindigkeit (m/s): 0.42
+Spurabweichung RMSE (m): 0.0502
+Max. Spurabweichung (m): 0.178
+Min. Abstand zu Hindernissen (m): 1.4
+Ausgelöste Recoveries: 0
+
+=== ERGEBNISSE FÜR DEIN KAPITEL 10===
+Fahrzeit (s): 30.0
+Gefahrene Distanz (m): 9.93
+Durchschnittsgeschwindigkeit (m/s): 0.32
+Max. Geschwindigkeit (m/s): 0.43
+Spurabweichung RMSE (m): 0.043
+Max. Spurabweichung (m): 0.129
+Min. Abstand zu Hindernissen (m): 1.42
+Ausgelöste Recoveries: 0
+
+
