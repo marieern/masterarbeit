@@ -1,0 +1,123 @@
+### Lokaler EKF: odom -> base_link ###
+# Dieser Filter liefert die hochfrequente, kontinuierliche Odometrie für den MPPI-Controller. Er fusioniert Rad-Encoder und IMU, um eine glatte Trajektorie ohne Sprünge zu garantieren
+ekf_filter_node_odom:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    stuck_rejection_threshold: 0.01 
+    predict_to_current_time: true
+
+    odom0: /odom
+    # [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true, false,  # Nutzt vx und vy (Vorwärts-/Seitwärtsgeschwindigkeit)
+                   false, false, true,  # vyaw (Rad-Drehung) ist false -> Verhindert Fehler durch Skid-Steer-Schlupf
+                   false, false, false]
+
+    imu0: /imu
+    imu0_config: [false, false, false,
+                  false, false, true,    # Die IMU übernimmt die absolute Drehung (yaw), da präziser als Räder
+                  false, false, false,
+                  false, false, true,    # Die IMU übernimmt die Drehgeschwindigkeit (vyaw)
+                  false, false, false]
+    imu0_differential: true
+    imu0_relative: true
+    
+    # Prozessrausch-Kovarianz für x und y auf 0.05 gesetzt. Dämpft kurzfristiges Sensorrauschen und vertraut stark dem kinematischen Bewegungsmodell
+    process_noise_covariance: [0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]
+
+### Globaler EKF: map -> odom ###
+# Fusioniert lokale Odometrie mit globalen Referenzen (AMCL / GNSS), orchestriert durch den Gatekeeper.
+ekf_filter_node_map:
+  ros__parameters:
+    use_sim_time: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map
+    two_d_mode: true
+    publish_tf: true
+    frequency: 30.0
+    sensor_timeout: 0.2
+
+    # GNSS Input (wird vom Gatekeeper freigegeben/geblockt)
+    odom0: /odometry/gps
+    odom0_config: [true,  true,  false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    # Filtert harte GNSS-Sprünge (Multipath-Effekte an der Hallenwand) ab 5.0 Standardabweichungen.
+    odom0_pose_rejection_threshold: 5.0 
+    odom0_differential: true
+
+    imu0: /imu_global_filtered
+    imu0_config: [false, false, false,
+                  false, false, true,    # Nutzt absolute Yaw-Orientierung
+                  false, false, false,
+                  false, false, true,    # Yaw-Geschwindigkeit (vyaw) true
+                  false, false, false]
+    # differential auf false, relative auf true
+    # Das zwingt den EKF, den ersten gemessenen Winkel als "0" zu nehmen und von dort an sauber weiterzuzählen, ohne durch reale Kompass-Störungen 
+    # (Magnetfelder von den Motoren) plötzlich um 90 Grad zu springen.
+    imu0_differential: false 
+    imu0_relative: true
+    
+    # AMCL Input (LiDAR-Lokalisierung für den Innenbereich)             
+    pose0: /amcl_pose_filtered
+    pose0_config: [true,  true,  false,
+                   false, false, true,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    # Hoher Schwellenwert (10.0), um die beabsichtigten, großen Korrektursprünge 
+    # während des "Hard-Resets" am Hallentor durch den Gatekeeper zuzulassen!
+    pose0_rejection_threshold: 10.0 
+
+    # Lokale Odometrie-Koppelung
+    odom1: /odometry/local
+    odom1_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false, 
+                   false, false, true,
+                   false, false, false]
+    odom1_differential: true
+
+    process_noise_covariance: [0.05,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]
