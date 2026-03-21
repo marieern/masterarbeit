@@ -4,7 +4,7 @@ Evaluierung und prototypische Umsetzung autonomer Navigationslösungen für inne
 ## Projekt- und Metadaten
 * **Autorin:** Marie Ernst
 * **Zeitraum der Softwareentwicklung:** Dezember 2025 bis März 2026
-* **Datenformate & Größe:** Das Repository umfasst insgesamt ca. 1.3 GB. Vorliegende Dateiformate sind primär Python-Skripte (`.py`), Shell-Skripte (`.sh`), ROS2-Launch-Files (`.py`), Konfigurationsdateien (`.yaml`) sowie Roboterbeschreibungen (`.urdf.xacro`).
+* **Datenformate & Größe:** Das Repository umfasst insgesamt ca. 1.3 GB. Vorliegende Dateiformate sind primär Python-Skripte (`.py`), Shell-Skripte (`.sh`), ROS2-Launch-Files (`.py`), Konfigurationsdateien (`.yaml`), Roboterbeschreibungen (`.urdf.xacro`) sowie C++-Skripte.
 * **Qualitätssicherung:** Die Funktionalität des Codes wurde durch systematische Versuchsreihen in der Gazebo-Simulation validiert.
 * **Datenschutz:** Im Rahmen dieses Softwareprojekts wurden ausschließlich maschinelle Sensordaten simuliert. Es wurden keine personenbezogenen Daten erhoben oder verarbeitet.
 
